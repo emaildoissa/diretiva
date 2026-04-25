@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import { ExternalLink, MessageCircle, Clock, CheckCircle2 } from 'lucide-react';
+import { MessageCircle, Clock } from 'lucide-react';
 
 // Configure suas variáveis de ambiente depois
 const supabase = createClient(
