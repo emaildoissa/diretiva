@@ -3,6 +3,7 @@ import { Car, Home, Heart, Building2, Send } from 'lucide-react';
 import { useReveal } from '../hooks/useReveal';
 import { Section } from '../layout/Section';
 import { cn } from '../layout/Container';
+import { supabase } from '../lib/supabase';
 
 export function QuoteForm() {
     const { ref, isVisible } = useReveal();
@@ -20,24 +21,21 @@ export function QuoteForm() {
         setLoading(true);
 
         try {
-            // Substitua pela URL do seu Webhook no n8n
-            const N8N_WEBHOOK_URL = 'SUA_URL_DO_WEBHOOK_N8N_AQUI';
+            const { error } = await supabase
+                .from('leads')
+                .insert([
+                    {
+                        nome: formData.nome,
+                        whatsapp: formData.whatsapp,
+                        tipo_seguro: formData.tipo,
+                        detalhes: formData.detalhes
+                    }
+                ]);
 
-            const response = await fetch(N8N_WEBHOOK_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    ...formData,
-                    origem: 'Formulário Home',
-                    timestamp: new Date().toISOString()
-                }),
-            });
-
-            if (response.ok) {
+            if (!error) {
                 setStep(3); // Sucesso
             } else {
+                console.error("Erro do Supabase:", error);
                 throw new Error('Falha ao enviar dados');
             }
         } catch (error) {
