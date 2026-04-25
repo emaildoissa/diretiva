@@ -1,0 +1,92 @@
+{
+  "name": "Diretiva",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "diretiva-leads",
+        "options": {}
+      },
+      "id": "466fe31c-e9f7-482f-83ae-d369b83c880d",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "4cdfcced-447f-46d0-bd44-f5767d181552"
+    },
+    {
+      "parameters": {
+        "tableId": "leads"
+      },
+      "id": "6706f2d3-3dbc-442a-82df-9c3c6a7fec30",
+      "name": "Supabase",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "ASkrJLk80nQIomZl",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "a6e487a4-f9b2-4b97-8f2a-95b3db8df728",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        400,
+        0
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "6f4d6191-5631-4040-adb4-3971f304d5f0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5f57805ef9dda7d3877a7fd3efbfc5ca9bdfe324478d204b5110397d80a83f97"
+  },
+  "id": "pBTNINybWlLknwe3",
+  "tags": []
+}
