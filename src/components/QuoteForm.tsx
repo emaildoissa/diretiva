@@ -3,14 +3,14 @@ import { Car, Home, Heart, Building2, Send } from 'lucide-react';
 import { useReveal } from '../hooks/useReveal';
 import { Section } from '../layout/Section';
 import { cn } from '../layout/Container';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../lib/supabase'; // Importando o cliente do Supabase
 
 export function QuoteForm() {
     const { ref, isVisible } = useReveal();
     const [step, setStep] = useState(1);
-    const [loading, setLoading] = useState(false); // Estado para o botão de envio
+    const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
-        tipo: '',
+        tipo_seguro: '', // Ajustado para bater com o banco de dados
         nome: '',
         whatsapp: '',
         detalhes: ''
@@ -21,26 +21,29 @@ export function QuoteForm() {
         setLoading(true);
 
         try {
+            // Envio DIRETO para a tabela 'leads' no Supabase
             const { error } = await supabase
                 .from('leads')
                 .insert([
                     {
                         nome: formData.nome,
                         whatsapp: formData.whatsapp,
-                        tipo_seguro: formData.tipo,
-                        detalhes: formData.detalhes
+                        tipo_seguro: formData.tipo_seguro,
+                        detalhes: formData.detalhes,
+                        status: 'novo'
                     }
                 ]);
 
-            if (!error) {
-                setStep(3); // Sucesso
-            } else {
-                console.error("Erro do Supabase:", error);
-                throw new Error('Falha ao enviar dados');
+            if (error) {
+                console.error("Erro retornado pelo Supabase:", error);
+                throw error;
             }
+
+            // Sucesso!
+            setStep(3);
         } catch (error) {
-            console.error("Erro no envio:", error);
-            alert("Ocorreu um erro ao enviar sua solicitação. Por favor, tente novamente ou nos chame no WhatsApp.");
+            console.error("Erro geral no envio:", error);
+            alert("Ocorreu um erro ao enviar sua solicitação. Verifique o console ou chame no WhatsApp.");
         } finally {
             setLoading(false);
         }
@@ -56,10 +59,9 @@ export function QuoteForm() {
                         isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"
                     )}
                 >
-                    {/* Subtle texture fix */}
                     <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white to-transparent mix-blend-overlay pointer-events-none"></div>
 
-                    {/* Lado Esquerdo - Highlights do CTA */}
+                    {/* Lado Esquerdo - CTA */}
                     <div className="relative z-10 lg:w-1/2 text-left flex flex-col justify-center">
                         <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-6 leading-tight">
                             Solicite sua Cotação Agora
@@ -76,7 +78,7 @@ export function QuoteForm() {
                         </div>
                     </div>
 
-                    {/* Lado Direito - O Formulário em si */}
+                    {/* Lado Direito - Formulário */}
                     <div className="relative z-10 lg:w-1/2 w-full">
                         <div className="w-full mx-auto p-8 rounded-[2rem] bg-black/20 backdrop-blur-xl border border-white/10 shadow-2xl">
                             {step === 1 && (
@@ -92,7 +94,7 @@ export function QuoteForm() {
                                             <button
                                                 key={item.id}
                                                 type="button"
-                                                onClick={() => { setFormData({ ...formData, tipo: item.id }); setStep(2); }}
+                                                onClick={() => { setFormData({ ...formData, tipo_seguro: item.id }); setStep(2); }}
                                                 className="flex flex-col items-center p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-white hover:bg-white/10 transition-all group"
                                             >
                                                 <item.icon className="w-8 h-8 mb-3 text-white/60 group-hover:text-white transition-colors" />
@@ -135,7 +137,7 @@ export function QuoteForm() {
                                         disabled={loading}
                                         className="w-full py-4 mt-2 bg-white text-brand-primary font-bold rounded-xl hover:scale-[1.02] transition-transform flex items-center justify-center gap-2 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
-                                        {loading ? "Enviando..." : (
+                                        {loading ? "Enviando para o CRM..." : (
                                             <>Solicitar Orçamento <Send className="w-4 h-4" /></>
                                         )}
                                     </button>
@@ -155,10 +157,10 @@ export function QuoteForm() {
                                         <span className="text-4xl">✅</span>
                                     </div>
                                     <h3 className="text-2xl font-bold text-white mb-2">Solicitação Enviada!</h3>
-                                    <p className="text-white/80">Em instantes, nosso especialista da Diretiva entrará em contato com você pelo WhatsApp.</p>
+                                    <p className="text-white/80">O corretor responsável já recebeu seu pedido e entrará em contato em instantes pelo WhatsApp.</p>
                                     <button
                                         type="button"
-                                        onClick={() => { setStep(1); setFormData({ tipo: '', nome: '', whatsapp: '', detalhes: '' }); }}
+                                        onClick={() => { setStep(1); setFormData({ tipo_seguro: '', nome: '', whatsapp: '', detalhes: '' }); }}
                                         className="mt-8 px-6 py-2 bg-white/10 text-white hover:bg-white/20 rounded-lg transition-colors text-sm font-medium"
                                     >
                                         Fazer nova cotação
@@ -167,15 +169,6 @@ export function QuoteForm() {
                             )}
                         </div>
                     </div>
-
-                    {/* Mobile Only: Mensagem no final */}
-                    <div className="pt-8 border-t border-white/20 lg:hidden w-full text-center">
-                        <p className="text-white/90 font-medium text-lg leading-relaxed">
-                            Proteção com clareza. Atendimento com propósito.<br />
-                            <span className="font-bold underline decoration-white/30 underline-offset-4">Diretiva Seguros</span>
-                        </p>
-                    </div>
-
                 </div>
             </div>
         </Section>
